@@ -8,6 +8,7 @@ import base64
 import functools
 import io
 import logging
+import os
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -223,7 +224,12 @@ def main() -> None:
         if "cuda" in args.device:
             torch.cuda.set_device(int(args.device.split(":")[-1]) if ":" in args.device else 0)
     LOGGER.info("Loading SAM3 model on %s", args.device)
-    _MODEL = build_sam3_image_model(enable_inst_interactivity=True).to(args.device)
+    checkpoint = os.environ.get("SAM3_CHECKPOINT")
+    _MODEL = build_sam3_image_model(
+        enable_inst_interactivity=True,
+        checkpoint_path=checkpoint,
+        load_from_HF=checkpoint is None,
+    ).to(args.device)
     _PROCESSOR = Sam3Processor(_MODEL, device=args.device, confidence_threshold=0.0)
     uvicorn.run(app, host=args.host, port=args.port)
 
