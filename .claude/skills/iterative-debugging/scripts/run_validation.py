@@ -83,6 +83,13 @@ def benchmark_environment(benchmark: str, gpu: int | str, *, root: Path) -> dict
             ),
             "PYTHONHASHSEED": "0",
         }
+    if os.environ.get("MUJOCO_GL") == "osmesa":
+        return {
+            "MUJOCO_GL": "osmesa",
+            "PYOPENGL_PLATFORM": "osmesa",
+            "CUDA_VISIBLE_DEVICES": str(gpu),
+            "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1",
+        }
     return {
         "MUJOCO_GL": "egl",
         "PYOPENGL_PLATFORM": "egl",
